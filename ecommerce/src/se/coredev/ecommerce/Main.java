@@ -13,15 +13,15 @@ public class Main
 		final UserRepository inMemoryUserRepository = new InMemoryUserRepository();
 		// Decorate inMemoryUserRepository with logging
 		final UserRepository userRepository = new UserLogRepository(inMemoryUserRepository);
-		
+
 		final ECommerceManager manager = new ECommerceManager(userRepository);
-		
+
 		User user = new User("master", "secret");
-		user = manager.addUser(user);		
-			
+		user = manager.addUser(user);
+
 		System.out.println(String.format("%s, %s, %s", user.getId(), user.getUsername(), user.getPassword()));
-		
+
 		// Adding a user that is already stored will throw an exception
-		user = manager.addUser(user);	
+		user = manager.addUser(user);
 	}
 }
