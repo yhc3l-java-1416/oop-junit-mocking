@@ -1,8 +1,7 @@
 package se.coredev.ecommerce.service;
 
-import java.util.UUID;
-
 import se.coredev.ecommerce.model.User;
+import se.coredev.ecommerce.repository.RepositoryException;
 import se.coredev.ecommerce.repository.UserRepository;
 
 public final class ECommerceManager
@@ -18,17 +17,68 @@ public final class ECommerceManager
 	{
 		if (userToAdd.getId() == User.EMPTY_USER_ID)
 		{
-			User user = new User(getUserId(), userToAdd.getUsername(), userToAdd.getPassword());
-			userRepository.addUser(user);
-
-			return user;
+			try
+			{
+				return userRepository.addUser(userToAdd);
+			}
+			catch (RepositoryException e)
+			{
+				throw new ECommerceManagerException("Could not add user", e);
+			}
 		}
-
-		throw new ECommerceManagerException(String.format("User with id:%s already stored. Use updateUser() instead", userToAdd.getId()));
+		throw new ECommerceManagerException(String.format("User with id:%s already stored. Use updateUser() instead", 
+														  userToAdd.getId()));
 	}
-
-	private String getUserId()
+	
+	public User getUser(final int userId)
 	{
-		return UUID.randomUUID().toString();
+		try
+		{
+			return userRepository.getUserById(userId);
+		}
+		catch (RepositoryException e)
+		{
+			throw new ECommerceManagerException("Could not get user with id:" + userId, e);
+		}
 	}
+	
+	public User updateUser(final User user)
+	{
+		try
+		{
+			return userRepository.updateUser(user);
+		}
+		catch (RepositoryException e)
+		{
+			throw new ECommerceManagerException("Could not update user", e);
+		}
+	}
+	
+	public User deleteUser(int userId)
+	{
+		try
+		{
+			return userRepository.deleteUser(userId);
+		}
+		catch (RepositoryException e)
+		{
+			throw new ECommerceManagerException("Could not delete user", e);
+		}
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

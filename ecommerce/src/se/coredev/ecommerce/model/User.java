@@ -2,9 +2,9 @@ package se.coredev.ecommerce.model;
 
 public final class User
 {
-	public static final String EMPTY_USER_ID = "-1";
+	public static final int EMPTY_USER_ID = -1;
 	
-	private final String id;
+	private final int id;
 	private final String username;
 	private final String password;
 
@@ -13,14 +13,14 @@ public final class User
 		this(EMPTY_USER_ID, username, password);
 	}
 
-	public User(String id, String username, String password)
+	public User(int id, String username, String password)
 	{
 		this.id = id;
 		this.username = username;
 		this.password = password;
 	}
 
-	public String getId()
+	public int getId()
 	{
 		return id;
 	}
@@ -46,7 +46,7 @@ public final class User
 		if (other instanceof User)
 		{
 			User otherUser = (User) other;
-			return id.equals(otherUser.id) && username.equals(otherUser.username);
+			return id == otherUser.id && username.equals(otherUser.username);
 		}
 
 		return false;
@@ -56,7 +56,7 @@ public final class User
 	public int hashCode()
 	{
 		int result = 1;
-		result *= 37 + id.hashCode();
+		result *= 37 + id;
 		result *= 37 + username.hashCode();
 
 		return result;
