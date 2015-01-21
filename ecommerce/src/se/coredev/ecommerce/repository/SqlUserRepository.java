@@ -5,10 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.mysql.jdbc.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 import se.coredev.ecommerce.model.User;
+
+import com.mysql.jdbc.Statement;
 
 public final class SqlUserRepository implements UserRepository
 {
@@ -22,7 +24,7 @@ public final class SqlUserRepository implements UserRepository
 		{
 			connection.setAutoCommit(false);
 			try (PreparedStatement stmt = connection.prepareStatement("insert into users values (null, ?, ?, null, null)",
-																	  Statement.RETURN_GENERATED_KEYS))
+					Statement.RETURN_GENERATED_KEYS))
 			{
 				stmt.setString(1, user.getUsername());
 				stmt.setString(2, user.getPassword());
@@ -36,7 +38,7 @@ public final class SqlUserRepository implements UserRepository
 					{
 						int id = rs.getInt(0);
 						connection.commit();
-						
+
 						return new User(id, user.getUsername(), user.getPassword());
 					}
 				}
@@ -45,7 +47,7 @@ public final class SqlUserRepository implements UserRepository
 			{
 				connection.rollback();
 			}
-			
+
 			throw new RepositoryException("Could not add user");
 		}
 		catch (SQLException e)
@@ -53,7 +55,6 @@ public final class SqlUserRepository implements UserRepository
 			throw new RepositoryException("Could not add user", e);
 		}
 	}
-	
 
 	@Override
 	public User getUserById(final int userId) throws RepositoryException
@@ -83,7 +84,13 @@ public final class SqlUserRepository implements UserRepository
 	@Override
 	public User updateUser(final User user) throws RepositoryException
 	{
-		return null;
+		Map<Integer, Object> parameters = new HashMap<>();
+		
+		parameters.put(1, user.getUsername());
+		parameters.put(2, user.getPassword());
+		int key = executeSingleUpdate("insert into users values (null, ?, ?, null, null)", parameters);
+		
+		return new User(key, user.getUsername(), user.getPassword());
 	}
 
 	@Override
@@ -101,6 +108,36 @@ public final class SqlUserRepository implements UserRepository
 		catch (SQLException e)
 		{
 			throw new RepositoryException("Could not connect to data source", e);
+		}
+	}
+
+	private int executeSingleUpdate(final String sql, final Map<Integer, Object> parameters) throws RepositoryException
+	{
+		try (final Connection connection = getConnection())
+		{
+			try(final PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS))
+			{
+				for(Map.Entry<Integer, Object> parameter : parameters.entrySet())
+				{
+					stmt.setObject(parameter.getKey(), parameter.getValue());					
+				}
+				
+				int rowsAffected = stmt.executeUpdate();
+				if(rowsAffected == 1)
+				{
+					ResultSet rs = stmt.getGeneratedKeys();
+					int key = rs.getInt(1);
+					
+					connection.commit();
+					return key;
+				}				
+			}
+			
+			throw new RepositoryException("could not execute update");
+		}
+		catch (Exception e)
+		{
+			throw new RepositoryException("could not execute update", e);
 		}
 	}
 
