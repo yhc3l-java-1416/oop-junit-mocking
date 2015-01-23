@@ -28,7 +28,7 @@ public final class UserRepository
 			return userToAdd;
 		} 
 		
-		throw new RepositoryException();
+		throw new RepositoryException("User must not have an id");
 	}
 
 	public User getUser(final String username)
