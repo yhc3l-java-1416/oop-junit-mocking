@@ -7,8 +7,8 @@ import java.util.Map;
 
 public final class Registry
 {
-	private Map<String, Student> students;
-	private Map<Course, List<Student>> courses;
+	private final Map<String, Student> students;
+	private final Map<Course, List<Student>> courses;
 	
 
 	public Registry()
